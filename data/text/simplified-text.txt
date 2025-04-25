@@ -1,0 +1,3 @@
+IT, or information technology, uses computers and other electronic gadgets to handle information.  This includes storing, finding, sending, and managing data.  It covers both the physical devices (hardware) and the programs that run on them (software).
+
+IT is used everywhere – in businesses to manage data and communications, and also at home for personal use and entertainment.  The internet and websites are just two examples of IT technologies.
