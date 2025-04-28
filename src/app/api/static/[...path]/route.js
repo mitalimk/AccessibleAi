@@ -3,42 +3,43 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
+    // Properly await the params
+    const params = await context.params;
     const { path: filePath } = params;
-    const fullPath = path.join(process.cwd(), 'data', ...filePath);
     
+    const fullPath = path.join(process.cwd(), 'data', ...filePath);
+
     // Check if file exists
     if (!fs.existsSync(fullPath)) {
-      return new NextResponse('File not found', { status: 404 });
+      return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
-    
+
+    // Determine content type based on file extension
+    const ext = path.extname(fullPath).toLowerCase();
+    let contentType = 'application/octet-stream';
+
+    if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.gif') contentType = 'image/gif';
+    else if (ext === '.svg') contentType = 'image/svg+xml';
+    else if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.txt') contentType = 'text/plain';
+    else if (ext === '.json') contentType = 'application/json';
+
     // Read file
     const fileBuffer = fs.readFileSync(fullPath);
-    
-    // Determine content type
-    let contentType = 'application/octet-stream';
-    if (fullPath.endsWith('.mp3')) {
-      contentType = 'audio/mpeg';
-    } else if (fullPath.endsWith('.png')) {
-      contentType = 'image/png';
-    } else if (fullPath.endsWith('.jpg') || fullPath.endsWith('.jpeg')) {
-      contentType = 'image/jpeg';
-    } else if (fullPath.endsWith('.gif')) {
-      contentType = 'image/gif';
-    } else if (fullPath.endsWith('.json')) {
-      contentType = 'application/json';
-    }
-    
-    // Return file
+
+    // Return file with appropriate content type
     return new NextResponse(fileBuffer, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
+        'Cache-Control': 'public, max-age=3600'
       }
     });
   } catch (error) {
     console.error('Error serving static file:', error);
-    return new NextResponse('Error serving file', { status: 500 });
+    return NextResponse.json({ error: 'Failed to serve file' }, { status: 500 });
   }
 }

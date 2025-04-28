@@ -1,0 +1,18 @@
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+      <rect width="800" height="600" fill="#34495e" />
+      <rect x="50" y="50" width="700" height="500" fill="white" opacity="0.8" />
+      <text x="400" y="200" font-family="Arial" font-size="48" text-anchor="middle" fill="#333">
+        THINGS
+      </text>
+      <text x="400" y="300" font-family="Arial" font-size="32" text-anchor="middle" fill="#666">
+        Category: default
+      </text>
+      <text x="400" y="400" font-family="Arial" font-size="24" text-anchor="middle" fill="#999">
+        Placeholder Image
+      </text>
+      <text x="400" y="500" font-family="Arial" font-size="16" text-anchor="middle" fill="#999">
+        Generated at 4/28/2025, 3:09:37 PM
+      </text>
+    </svg>
+    

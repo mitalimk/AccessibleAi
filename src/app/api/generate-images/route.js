@@ -1,39 +1,159 @@
-// app/api/generate-image/route.js
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { OpenAI } from 'openai';
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure this is set in your .env file
-});
 
 const imagesDir = path.join(process.cwd(), 'data', 'images');
 const simplifiedTextPath = path.join(process.cwd(), 'data', 'simplified-text.json');
 
-// Extract keywords from text for image generation
-function extractKeywords(text, maxKeywords = 5) {
-  // Simple keyword extraction - in production you might want to use NLP
-  // Remove common words and get unique meaningful words
-  const commonWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'about', 'like', 'through', 'over', 'before', 'between', 'after', 'since', 'without', 'under', 'within', 'along', 'following', 'across', 'behind', 'beyond', 'plus', 'except', 'but', 'up', 'out', 'around', 'down', 'off', 'above', 'near', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall', 'should', 'may', 'might', 'must', 'can', 'could', 'of', 'that', 'this', 'these', 'those', 'it', 'they', 'them', 'their', 'what', 'which', 'who', 'whom', 'whose', 'where', 'when', 'why', 'how']);
+// Create more meaningful prompts from text segments
+function createImagePrompts(text, numPrompts = 4) {
+  // Split the text into sentences
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
   
-  // Split by non-alphanumeric characters and filter
-  const words = text.toLowerCase()
-    .split(/\W+/)
-    .filter(word => word.length > 3 && !commonWords.has(word));
+  if (sentences.length === 0) {
+    return [`A photorealistic image of ${text}. High quality, detailed photograph, professional lighting`];
+  }
   
-  // Count word frequency
-  const wordFrequency = {};
-  words.forEach(word => {
-    wordFrequency[word] = (wordFrequency[word] || 0) + 1;
-  });
+  // If we have few sentences, use them all
+  if (sentences.length <= numPrompts) {
+    return sentences.map(sentence => 
+      `A photorealistic image of ${sentence.trim()}. High quality, detailed photograph, professional lighting`
+    );
+  }
   
-  // Sort by frequency and get top keywords
-  return Object.entries(wordFrequency)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, maxKeywords)
-    .map(entry => entry[0]);
+  // For longer texts, select distributed segments
+  const prompts = [];
+  const step = Math.floor(sentences.length / numPrompts);
+  
+  for (let i = 0; i < numPrompts; i++) {
+    const index = Math.min(i * step, sentences.length - 1);
+    let prompt = sentences[index].trim();
+    
+    // Make sure we have substantial content
+    if (prompt.split(' ').length < 5 && index + 1 < sentences.length) {
+      prompt += '. ' + sentences[index + 1].trim();
+    }
+    
+    prompts.push(`A photorealistic image of ${prompt}. High quality, detailed photograph, professional lighting, not cartoon or illustration`);
+  }
+  
+  return prompts;
+}
+
+export async function POST(req) {
+  try {
+    // Get the ClipDrop API key from environment variables
+    const clipDropApiKey = process.env.CLIP_DROP;
+    
+    if (!clipDropApiKey) {
+      return NextResponse.json({ error: 'ClipDrop API key is missing' }, { status: 500 });
+    }
+
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
+    
+    // Extract text and count from the request body
+    const requestData = await req.json();
+    let { text, count = 4 } = requestData;
+    
+    // If no text was provided, try to load from the simplified text file
+    if (!text || text.trim() === '') {
+      if (fs.existsSync(simplifiedTextPath)) {
+        try {
+          const textData = JSON.parse(fs.readFileSync(simplifiedTextPath, 'utf8'));
+          text = textData.text;
+        } catch (err) {
+          return NextResponse.json({ error: 'Failed to read simplified text file' }, { status: 500 });
+        }
+      }
+      
+      if (!text || text.trim() === '') {
+        return NextResponse.json({ error: 'No text provided for image generation' }, { status: 400 });
+      }
+    }
+    
+    // Ensure count is a number and within reasonable limits
+    count = Math.min(Math.max(parseInt(count) || 4, 1), 30);
+    
+    // Create meaningful prompts from text segments
+    const prompts = createImagePrompts(text, count);
+    console.log(`Generated ${prompts.length} prompts from text`);
+    
+    // Generate images using ClipDrop API
+    const imagePromises = prompts.map(async (prompt, index) => {
+      try {
+        const timestamp = Date.now();
+        const imageName = `image-${timestamp}-${index}.png`;
+        const imagePath = path.join(imagesDir, imageName);
+        
+        // Use ClipDrop API to generate an image
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+        
+        console.log(`Sending request to ClipDrop API for prompt ${index+1}/${prompts.length}`);
+        
+        const response = await fetch('https://clipdrop-api.co/text-to-image/v1', {
+          method: 'POST',
+          headers: {
+            'x-api-key': clipDropApiKey,
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const responseText = await response.text();
+          console.error(`ClipDrop API error: ${response.status} ${response.statusText}`);
+          console.error(`Response body: ${responseText}`);
+          throw new Error(`ClipDrop API error: ${response.status} ${response.statusText}`);
+        }
+        
+        // Get image data as arrayBuffer
+        const imageArrayBuffer = await response.arrayBuffer();
+        const imageBuffer = Buffer.from(imageArrayBuffer);
+        
+        // Save the image
+        fs.writeFileSync(imagePath, imageBuffer);
+        console.log(`Successfully saved image ${index+1}/${prompts.length}`);
+        
+        return {
+          id: `image-${timestamp}-${index}`,
+          url: `/data/images/${imageName}`,
+          time: timestamp,
+          prompt: prompt
+        };
+      } catch (error) {
+        console.error(`Error generating image ${index+1}/${prompts.length}:`, error);
+        
+        // Return a partial result instead of null to prevent the whole batch from failing
+        const timestamp = Date.now();
+        return {
+          id: `image-${timestamp}-${index}`,
+          url: null, // Indicate no image was generated
+          time: timestamp,
+          prompt: prompt,
+          error: error.message
+        };
+      }
+    });
+    
+    // Wait for all image generation to complete
+    const generatedImages = await Promise.all(imagePromises);
+    const successImages = generatedImages.filter(img => img.url !== null);
+    const failedImages = generatedImages.filter(img => img.url === null);
+    
+    return NextResponse.json({ 
+      success: successImages.length > 0,
+      images: successImages,
+      failedImages: failedImages,
+      totalRequested: prompts.length,
+      totalSucceeded: successImages.length
+    });
+  } catch (error) {
+    console.error('Error generating images:', error);
+    return NextResponse.json({ error: 'Failed to generate images', details: error.message }, { status: 500 });
+  }
 }
 
 export async function GET() {
@@ -62,74 +182,5 @@ export async function GET() {
   } catch (error) {
     console.error('Error retrieving images:', error);
     return NextResponse.json({ error: 'Failed to retrieve images' }, { status: 500 });
-  }
-}
-
-export async function POST(req) {
-  try {
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(imagesDir)) {
-      fs.mkdirSync(imagesDir, { recursive: true });
-    }
-    
-    // Load simplified text to use for image generation
-    if (!fs.existsSync(simplifiedTextPath)) {
-      return NextResponse.json({ error: 'No simplified text available for image generation' }, { status: 400 });
-    }
-    
-    const textData = JSON.parse(fs.readFileSync(simplifiedTextPath, 'utf8'));
-    const text = textData.text;
-    
-    if (!text) {
-      return NextResponse.json({ error: 'Empty text content' }, { status: 400 });
-    }
-    
-    // Extract keywords for prompts
-    const keywords = extractKeywords(text);
-    
-    // Generate images for up to 5 keywords/concepts
-    const imagePromises = keywords.map(async (keyword, index) => {
-      try {
-        // Create a descriptive prompt from the keyword
-        const prompt = `A high-quality, educational illustration representing: ${keyword}. Clear, simple style suitable for learning content.`;
-        
-        const response = await openai.images.generate({
-          model: "dall-e-3",
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024",
-          response_format: "b64_json"
-        });
-        
-        const imageData = response.data[0].b64_json;
-        const timestamp = Date.now();
-        const imageName = `image-${timestamp}-${index}.png`;
-        const imagePath = path.join(imagesDir, imageName);
-        
-        // Save the image
-        fs.writeFileSync(imagePath, Buffer.from(imageData, 'base64'));
-        
-        return {
-          id: `image-${timestamp}-${index}`,
-          url: `/data/images/${imageName}`,
-          time: timestamp,
-          keyword: keyword
-        };
-      } catch (error) {
-        console.error(`Error generating image for keyword ${keyword}:`, error);
-        return null;
-      }
-    });
-    
-    // Wait for all image generation to complete
-    const generatedImages = (await Promise.all(imagePromises)).filter(img => img !== null);
-    
-    return NextResponse.json({ 
-      success: true, 
-      images: generatedImages
-    });
-  } catch (error) {
-    console.error('Error generating images:', error);
-    return NextResponse.json({ error: 'Failed to generate images' }, { status: 500 });
   }
 }

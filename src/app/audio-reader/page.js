@@ -352,7 +352,7 @@ export default function TextToSpeech() {
               <Mic size={24} className="text-white" />
             </motion.div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 via-purple-600 to-pink-500 bg-clip-text text-transparent font-sans">
-              Text-to-Speech
+              Audio Reader
             </h1>
           </div>
         </div>
@@ -539,7 +539,7 @@ export default function TextToSpeech() {
                   <Volume2 size={24} className={theme === 'dark' ? 'text-white' : 'text-purple-600'} />
                 </motion.span>
                 <h3 className={`text-xl font-bold ${isDyslexiaFriendly ? 'font-mono tracking-wide' : ''}`}>
-                  Text-to-Speech Generator
+                  Audio Reader
                 </h3>
               </motion.div>
 
@@ -924,7 +924,7 @@ export default function TextToSpeech() {
                                           <li className={`flex items-start gap-2 ${isDyslexiaFriendly ? 'font-mono leading-relaxed tracking-wide' : ''}`}>
                                             <span className={`inline-block w-1.5 h-1.5 rounded-full mt-2 ${theme === 'dark' ? 'bg-purple-400' : 'bg-purple-600'}`}></span>
                                             <span className="text-sm">
-                                              Use the advanced settings to customize the speech rate, pitch, and volume.
+                                              Use the advanced settings to customize the speech rate, pitch, and volume. Click stop speaking and then again click on read aloud to see the change done in advance voice settings.
                                             </span>
                                           </li>
                                         </motion.ul>
