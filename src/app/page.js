@@ -103,7 +103,7 @@ const menuItems = [
   },
   { 
     title: "Image Understanding", 
-    icon: <Image size={20} />, 
+    icon: <Image size={20} alt="Description of the image" />, 
     description: "Generate captions and related images" 
   },
   { 
@@ -212,10 +212,10 @@ const menuItems = [
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gradient-to-b from-indigo-50 to-white text-gray-900'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gradient-to-b from-indigo-50 to-white text-gray-900 '}`}>
       {/* Header */}
       <header className={`py-4 px-6 flex justify-between items-center shadow-md sticky top-0 z-50 backdrop-blur-md ${theme === 'dark' ? 'bg-gray-800/90' : 'bg-white/90'}`}>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 w-full max-w-full mx-auto overflow-x-hidden px-4 md:px-6">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -518,7 +518,7 @@ const menuItems = [
                     </div>
                     <div className={`p-4 rounded-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-3`}>
                       <p className="text-sm text-gray-500 mb-2">Original Text:</p>
-                      <p className="text-sm">The photosynthetic process in plants involves the conversion of light energy into chemical energy that can be used to fuel the organism's activities.</p>
+                      <p className="text-sm">The photosynthetic process in plants involves the conversion of light energy into chemical energy that can be used to fuel the organism&apos;s activities.</p>
                     </div>
                     <div className={`p-4 rounded-md bg-gradient-to-r ${theme === 'dark' ? 'from-indigo-900/50 to-purple-900/50' : 'from-indigo-100 to-purple-100'}`}>
                       <div className="flex justify-between items-center mb-2">

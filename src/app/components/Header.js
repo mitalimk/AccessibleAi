@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Brain } from 'lucide-react';
 
 export default function Header({ 
   theme, 

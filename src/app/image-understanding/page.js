@@ -1,4 +1,5 @@
 'use client';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 
 import React, { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
@@ -168,8 +169,10 @@ export default function ImageUnderstanding() {
     const newZoom = direction === 'in' ? fontZoom + 10 : fontZoom - 10;
     setFontZoom(Math.max(80, Math.min(150, newZoom)));
   };
+ 
 
   return (
+    <ResponsiveContainer>
     
     <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gradient-to-b from-purple-50 to-white text-gray-900'}`}>
       {/* Sidebar */}
@@ -530,6 +533,8 @@ export default function ImageUnderstanding() {
                               <p className={cardStyle}>{captionContent}</p>
                             </div>
                           </div>
+                         
+
                         );
                       })}
                     </div>
@@ -546,5 +551,6 @@ export default function ImageUnderstanding() {
         </div>
       </div>
     </div>
+    </ResponsiveContainer>
   );
 }

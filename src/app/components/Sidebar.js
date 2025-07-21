@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Sidebar({ 
   theme, 
@@ -40,7 +41,7 @@ export default function Sidebar({
     },
     { 
       title: "Image Understanding", 
-      icon: <Image size={20} />, 
+      icon: <Image size={20} alt="Descriptive text"/>, 
       description: "Generate captions and related images" 
     },
     { 

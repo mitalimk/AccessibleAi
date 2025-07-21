@@ -1,8 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Inter } from 'next/font/google';
+import Script from 'next/script'
 import { Navigation } from '../../components'; // Adjust the path based on your folder structureconst 
 const inter = Inter({ subsets: ['latin'] });
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +24,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head><script src="https://cdn.tailwindcss.com"></script> </head>
+      <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <Script src="https://cdn.tailwindcss.com.js" strategy="afterInteractive" /></head>
       <body
 className={`${inter.className} ${geistSans.variable} ${geistMono.variable} antialiased`}>
          <Navigation />

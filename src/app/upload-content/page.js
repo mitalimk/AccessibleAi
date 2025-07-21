@@ -69,7 +69,7 @@ const [processedContent, setProcessedContent] = useState(null);
     },
     { 
       title: "Image Understanding", 
-      icon: <Image size={20} />, 
+      icon: <Image size={20}  alt="Description of the image"/>, 
       description: "Generate captions and related images" 
     },
     { 
@@ -426,7 +426,7 @@ const [processedContent, setProcessedContent] = useState(null);
           >
             <div className="flex justify-center mb-4">
               <div className={`${theme === 'dark' ? 'bg-purple-900/30' : 'bg-purple-100'} p-4 rounded-full`}>
-                <Image size={36} className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`} />
+                <Image size={36} className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`} alt="Description of the image" />
               </div>
             </div>
             <h3 className={`text-xl font-semibold mb-2 text-center ${isDyslexiaFriendly ? 'font-mono tracking-wide' : ''}`}>
@@ -594,7 +594,7 @@ const [processedContent, setProcessedContent] = useState(null);
         className={`p-4 rounded-lg flex items-center gap-3 ${theme === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'} shadow border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
       >
         <div className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-green-900/30' : 'bg-green-100'}`}>
-          <Image size={20} className={`${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
+          <Image size={20} className={`${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} alt="Description of the image" />
         </div>
         <span className={`${isDyslexiaFriendly ? 'font-mono tracking-wide' : ''}`}>Caption Image</span>
       </motion.button>
@@ -676,7 +676,7 @@ const [processedContent, setProcessedContent] = useState(null);
       className={`p-4 rounded-lg flex items-center gap-3 ${theme === 'dark' ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'} shadow border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
     >
       <div className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-green-900/30' : 'bg-green-100'}`}>
-        <Image size={20} className={`${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
+        <Image size={20} className={`${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}  alt="Description of the image"/>
       </div>
       <span className={`${isDyslexiaFriendly ? 'font-mono tracking-wide' : ''}`}>Caption Image</span>
     </motion.button>
@@ -810,7 +810,7 @@ const [processedContent, setProcessedContent] = useState(null);
               className={`p-4 rounded-lg flex items-center gap-4 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-md cursor-pointer border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
             >
               <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-purple-100'}`}>
-                <Image size={24} className="text-purple-600" />
+                <Image size={24} className="text-purple-600" alt="Description of the image" />
               </div>
               <div>
                 <h4 className={`font-medium ${isDyslexiaFriendly ? 'font-mono tracking-wide' : ''}`}>

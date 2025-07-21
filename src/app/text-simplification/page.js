@@ -1,5 +1,7 @@
 
 'use client';
+import ResponsiveContainer from '../components/ResponsiveContainer';
+
 
 import React, { useState, useEffect } from 'react';
 import { simplifyTextWithGemini, analyzeTextComplexity } from './simplificationApi';
@@ -19,6 +21,7 @@ import {
 import { AnimatePresence } from 'framer-motion';
     
 export default function TextSimplification() {
+
   const [theme, setTheme] = useState('light');
   const [isDyslexiaFriendly, setIsDyslexiaFriendly] = useState(false);
   const [fontZoom, setFontZoom] = useState(100);
@@ -247,6 +250,7 @@ const handleDownloadText = () => {
     window.speechSynthesis.speak(utterance);
   };
   return (
+    <ResponsiveContainer>
 <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gradient-to-b from-purple-50 to-white text-gray-900'}`}>
       {/* Add static sidebar */}
       <div className={`fixed left-0 top-0 h-full w-64 shadow-lg z-20 transition-all duration-300 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
@@ -759,4 +763,5 @@ const handleDownloadText = () => {
       </div>
 
     </div>
+    </ResponsiveContainer>
   );}

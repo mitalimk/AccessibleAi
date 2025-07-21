@@ -6,39 +6,29 @@ const imagesDir = path.join(process.cwd(), 'data', 'images');
 const simplifiedTextPath = path.join(process.cwd(), 'data', 'simplified-text.json');
 
 // Create more meaningful prompts from text segments
-function createImagePrompts(text, numPrompts = 4) {
-  // Split the text into sentences
+function createImagePrompts(text, count = 4) {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
-  
+  let basePrompts = [];
+
   if (sentences.length === 0) {
-    return [`A photorealistic image of ${text}. High quality, detailed photograph, professional lighting`];
-  }
-  
-  // If we have few sentences, use them all
-  if (sentences.length <= numPrompts) {
-    return sentences.map(sentence => 
+    basePrompts = [
+      `A photorealistic image of ${text}. High quality, detailed photograph, professional lighting`
+    ];
+  } else {
+    basePrompts = sentences.map(sentence =>
       `A photorealistic image of ${sentence.trim()}. High quality, detailed photograph, professional lighting`
     );
   }
-  
   // For longer texts, select distributed segments
-  const prompts = [];
-  const step = Math.floor(sentences.length / numPrompts);
-  
-  for (let i = 0; i < numPrompts; i++) {
-    const index = Math.min(i * step, sentences.length - 1);
-    let prompt = sentences[index].trim();
-    
-    // Make sure we have substantial content
-    if (prompt.split(' ').length < 5 && index + 1 < sentences.length) {
-      prompt += '. ' + sentences[index + 1].trim();
-    }
-    
-    prompts.push(`A photorealistic image of ${prompt}. High quality, detailed photograph, professional lighting, not cartoon or illustration`);
+  const finalPrompts = [];
+
+  for (let i = 0; i < count; i++) {
+    finalPrompts.push(basePrompts[i % basePrompts.length]);
   }
-  
-  return prompts;
+
+  return finalPrompts;
 }
+
 
 export async function POST(req) {
   try {
